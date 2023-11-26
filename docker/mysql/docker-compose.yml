@@ -1,0 +1,31 @@
+version: '3.1'
+
+services:
+  ###################################
+  #### DB Mysql
+  ###################################
+  db:
+    image: mysql:latest
+    container_name: market-mysql
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --range_optimizer_max_mem_size=16777216
+    restart: always
+    environment:
+      MYSQL_DATABASE: market
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+      MYSQL_ROOT_PASSWORD: root
+      TZ: Asia/Seoul
+    volumes:
+      #- {연결될 실제 물리 folder path}/{docker 안에 folder path}
+      - ./db:/var/lib/mysql
+      - ./conf.d:/etc/mysql/conf.d
+      # OS 볼륨의 타임존을 따라가게 할때 사용한다.
+      #- /etc/timezone:/etc/timezone:ro      # ubuntu os
+#      - /etc/localtime:/etc/localtime:ro     # cent os
+      - ./initdb.d:/docker-entrypoint-initdb.d
+    ports:
+      - 13306:3306
