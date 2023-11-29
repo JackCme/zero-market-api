@@ -1,6 +1,7 @@
 package com.example.marketapi.domain.user.api;
 
 import com.example.marketapi.domain.user.api.model.UserJoin;
+import com.example.marketapi.domain.user.service.UserAccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,8 +14,11 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/user")
 public class UserAccountController {
+    private final UserAccountService userAccountService;
     @PostMapping("/join")
     public UserJoin.Response join(@RequestBody @Valid UserJoin.Request requestBody) {
-        return null;
+        return UserJoin.Response.from(
+            userAccountService.createUserAccount(requestBody.getEmail(), requestBody.getPassword())
+        );
     }
 }
