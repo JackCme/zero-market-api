@@ -11,6 +11,11 @@ public class UserAccountException extends RuntimeException {
     private ErrorCode errorCode;
     private String errorMessage;
 
+    public UserAccountException(ErrorCode errorCode) {
+        super(errorCode.getDescription());
+        this.errorCode = errorCode;
+        this.errorMessage = errorCode.getDescription();
+    }
 
     @Getter
     @AllArgsConstructor
