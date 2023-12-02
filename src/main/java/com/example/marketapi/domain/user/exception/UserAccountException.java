@@ -21,6 +21,7 @@ public class UserAccountException extends RuntimeException {
     @AllArgsConstructor
     public enum ErrorCode {
         USER_ALREADY_EXISTS(400, "이미 사용자가 존재합니다.")
+        , USER_NOT_FOUND(404, "사용자를 찾을 수 없습니다.")
         , EMAIL_NOT_VALID(400, "올바른 이메일 형식이 아닙니다.")
         , PASSWORD_NOT_VALID(400, "비밀번호의 형식이 올바르지 않습니다.")
         ;
