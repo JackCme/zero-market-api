@@ -7,3 +7,7 @@ spring:
     hikari:
       connection-timeout: 30000
       maximum-pool-size: 5
+jwt:
+  header: Authorization
+  secret: 391e72d4d0433ee300b9ba5c6ab11ceed1c8f7ed5bc89b41725409b777598f5a
+  token-validity-in-seconds: 86400 # ttl (초)
