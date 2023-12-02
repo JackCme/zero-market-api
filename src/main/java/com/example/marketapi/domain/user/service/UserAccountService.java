@@ -6,19 +6,24 @@ import com.example.marketapi.domain.user.exception.UserAccountException;
 import com.example.marketapi.domain.user.repository.UserAccountRepository;
 import com.example.marketapi.global.util.ValidationUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class UserAccountService {
+public class UserAccountService implements UserDetailsService {
     private final UserAccountRepository userAccountRepository;
+    // SecurityConfig class 에 Bean 으로 등록해놓은 PasswordEncoder
+    private final PasswordEncoder passwordEncoder;
 
     public UserAccountDto createUserAccount(String email, String password) {
         validateCreateUserAccount(email, password);
 
         UserAccount userAccount = userAccountRepository.save(UserAccount.builder()
                 .email(email)
-                .password(password)
+                .password(passwordEncoder.encode(password))
                 .build());
 
         return UserAccountDto.fromEntity(userAccount);
@@ -34,5 +39,11 @@ public class UserAccountService {
         if (userAccountRepository.findUserAccountByEmail(email).isPresent()) {
             throw new UserAccountException(UserAccountException.ErrorCode.USER_ALREADY_EXISTS);
         }
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) {
+        return userAccountRepository.findUserAccountByEmail(username)
+                .orElseThrow(() -> new UserAccountException(UserAccountException.ErrorCode.USER_NOT_FOUND));
     }
 }
