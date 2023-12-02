@@ -2,11 +2,10 @@ package com.example.marketapi.global.util;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ValidationUtilTest {
 
@@ -24,7 +23,7 @@ class ValidationUtilTest {
     @Test
     void isValidPassword() {
         List<String> pwList = Arrays.asList(
-                "1Q2w3e4r@@", "12345QWertt!@#"
+                "1Q2w3e4r@@", "12345QWertt!@#", "$1-()0+=-28766AAa"
         );
         for (String sut : pwList) {
             assertTrue(ValidationUtil.isValidPassword(sut));
