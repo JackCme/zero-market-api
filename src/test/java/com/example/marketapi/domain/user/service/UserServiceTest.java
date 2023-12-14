@@ -10,6 +10,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -22,12 +24,15 @@ import static org.mockito.BDDMockito.given;
 class UserServiceTest {
     @Mock
     private UserAccountRepository userAccountRepository;
+    @Mock
+    private PasswordEncoder passwordEncoder;
     @InjectMocks
     private UserAccountService userAccountService;
 
     @Test
     @DisplayName("사용자 계정정보 생성 - 성공")
     void createUserAccountSuccess() {
+        // TODO: 장바구니 오류없이 생성되었는지 테스트 할 것
         // Given
         Long userId = 1L;
         String email = "jack@jack.com";
@@ -39,6 +44,7 @@ class UserServiceTest {
                 .build();
         given(userAccountRepository.findUserAccountByEmail(anyString())).willReturn(Optional.empty());
         given(userAccountRepository.save(any())).willReturn(createdAccount);
+        given(passwordEncoder.encode(password)).willReturn(new BCryptPasswordEncoder().encode(password));
 
         // When
         UserAccountDto userAccountDto = userAccountService.createUserAccount(email, password);
