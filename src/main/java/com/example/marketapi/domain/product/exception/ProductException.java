@@ -23,7 +23,7 @@ public class ProductException extends RuntimeException {
     @AllArgsConstructor
     public enum ErrorCode {
         PRODUCT_NOT_FOUND(404, "상품이 존재하지 않습니다.")
-        ,INSUFFICIENT_STOCK_EXCEPTION(400, "상품의 재고가 없습니다.");
+        ,INSUFFICIENT_STOCK_EXCEPTION(400, "상품의 재고가 부족합니다.");
 
         private final int status;
         private final String description;
