@@ -86,7 +86,7 @@ class ProductServiceTest {
                 .inStock(0L)
                 .build();
         given(productRepository.findById(anyLong())).willReturn(Optional.of(product));
-        given(productRepository.save(any())).willReturn(Optional.of(newProduct));
+        given(productRepository.save(any())).willReturn(newProduct);
         ArgumentCaptor<Product> captor = ArgumentCaptor.forClass(Product.class);
         // When
         productService.decreaseProductStock(productId, decreaseStockBy);
