@@ -4,7 +4,9 @@ import com.example.marketapi.domain.cart.entity.CartInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface CartInfoRepository extends JpaRepository<CartInfo, Long> {
-    CartInfo findCartInfoByUserAccountUserId(Long userId);
+    Optional<CartInfo> findCartInfoByUserAccountUserId(Long userId);
 }
