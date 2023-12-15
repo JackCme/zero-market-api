@@ -40,12 +40,11 @@ CREATE TABLE `cart_info` (
 
 -- cart_item: table
 CREATE TABLE `cart_item` (
+  `id` int NOT NULL AUTO_INCREMENT,
   `cart_id` int DEFAULT NULL,
-  `user_id` int DEFAULT NULL,
   `product_id` int DEFAULT NULL,
   `product_cnt` int DEFAULT NULL,
-  UNIQUE KEY `cart_product_pk` (`cart_id`,`user_id`),
-  KEY `cart_product_product_product_id_fk` (`product_id`),
+  PRIMARY KEY (`id`),
   CONSTRAINT `cart_product_product_product_id_fk` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`),
   CONSTRAINT `cart_product_user_cart_cart_id_fk` FOREIGN KEY (`cart_id`) REFERENCES `cart_info` (`cart_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='장바구니 상품정보';

@@ -1,5 +1,6 @@
 package com.example.marketapi.global.config;
 
+import com.example.marketapi.domain.user.entity.UserAccount;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -9,7 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -49,8 +50,9 @@ public class JwtTokenProvider implements InitializingBean {
         // 토큰의 expire 시간을 설정
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.tokenValidityInMilliseconds);
-
+        UserAccount userAccount = (UserAccount) authentication.getPrincipal();
         return Jwts.builder()
+                .setId(String.valueOf(userAccount.getUserId()))
                 .setSubject(authentication.getName())
 //                .claim(AUTHORITIES_KEY, authorities) // 정보 저장 // 해당 프로젝트에서 authorities 사용하지 않을것이기 때문에 주석처리
                 .signWith(key, SignatureAlgorithm.HS256) // 사용할 암호화 알고리즘과 , signature 에 들어갈 secret값 세팅
@@ -74,7 +76,11 @@ public class JwtTokenProvider implements InitializingBean {
 */
         Collection<? extends GrantedAuthority> authorities = new ArrayList<>();
 
-        User principal = new User(claims.getSubject(), "", authorities);
+//        User principal = new User(claims.getSubject(), "", authorities);
+        UserDetails principal = UserAccount.builder()
+                .userId(Long.valueOf(claims.getId()))
+                .email(claims.getSubject())
+                .build();
 
         // authorities 포함된 constructor 는 authenticated = true 로 세팅 하므로 정말 인증 된 곳에서만 사용해야 한다.
         // getAuthentication 앞에서 token validation 을 진행하므로 여긴 authenticated = true 로 설정해도 됨
