@@ -53,12 +53,9 @@ public class CartService {
         CartInfo cartInfo = cartInfoRepository.findById(cartId)
                 .orElseThrow(() -> new CartException(CartException.ErrorCode.CART_INFO_NOT_EXISTS));
 
-        CartItemID cartItemID = CartItemID.builder()
-                .cartId(cartId).productId(productId)
-                .build();
         CartItem cartItem = CartItem.builder()
+                .cartInfo(cartInfo)
                 .productCnt(count)
-                .cartItemID(cartItemID)
                 .product(product)
                 .build();
         cartItemRepository.save(cartItem);

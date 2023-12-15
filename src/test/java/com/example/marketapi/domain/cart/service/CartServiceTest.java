@@ -2,7 +2,6 @@ package com.example.marketapi.domain.cart.service;
 
 import com.example.marketapi.domain.cart.entity.CartInfo;
 import com.example.marketapi.domain.cart.entity.CartItem;
-import com.example.marketapi.domain.cart.entity.CartItemID;
 import com.example.marketapi.domain.cart.exception.CartException;
 import com.example.marketapi.domain.cart.repository.CartInfoRepository;
 import com.example.marketapi.domain.cart.repository.CartItemRepository;
@@ -29,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -138,12 +136,9 @@ class CartServiceTest {
                 .productId(productId)
                 .build();
         Long productCount = 2L;
-        CartItemID cartItemID = CartItemID.builder()
-                .cartId(cartId).productId(productId)
-                .build();
         CartItem cartItem = CartItem.builder()
                 .productCnt(productCount)
-                .cartItemID(cartItemID)
+                .cartInfo(cartInfo)
                 .product(product)
                 .build();
         given(cartInfoRepository.findById(cartId)).willReturn(Optional.of(cartInfo));
@@ -156,7 +151,7 @@ class CartServiceTest {
         cartService.addProductToCart(cartId, productId, productCount);
         // Then
         verify(cartItemRepository, times(1)).save(itemArgumentCaptor.capture());
-        assertEquals(itemArgumentCaptor.getValue().getCartItemID().getCartId(), cartId);
+        assertEquals(itemArgumentCaptor.getValue().getCartInfo().getCartId(), cartId);
         assertEquals(itemArgumentCaptor.getValue().getProduct().getProductId(), productId);
 
 
