@@ -1,5 +1,6 @@
 package com.example.marketapi.domain.user.service;
 
+import com.example.marketapi.domain.cart.service.CartService;
 import com.example.marketapi.domain.user.dto.UserAccountDto;
 import com.example.marketapi.domain.user.entity.UserAccount;
 import com.example.marketapi.domain.user.exception.UserAccountException;
@@ -10,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,7 +19,9 @@ public class UserAccountService implements UserDetailsService {
     private final UserAccountRepository userAccountRepository;
     // SecurityConfig class 에 Bean 으로 등록해놓은 PasswordEncoder
     private final PasswordEncoder passwordEncoder;
+    private final CartService cartService;
 
+    @Transactional
     public UserAccountDto createUserAccount(String email, String password) {
         validateCreateUserAccount(email, password);
 
@@ -25,6 +29,8 @@ public class UserAccountService implements UserDetailsService {
                 .email(email)
                 .password(passwordEncoder.encode(password))
                 .build());
+
+        cartService.createUserCart(userAccount.getUserId());
 
         return UserAccountDto.fromEntity(userAccount);
     }
