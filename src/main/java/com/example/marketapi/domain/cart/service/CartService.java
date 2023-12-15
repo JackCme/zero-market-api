@@ -1,8 +1,8 @@
 package com.example.marketapi.domain.cart.service;
 
+import com.example.marketapi.domain.cart.dto.CartInfoDto;
 import com.example.marketapi.domain.cart.entity.CartInfo;
 import com.example.marketapi.domain.cart.entity.CartItem;
-import com.example.marketapi.domain.cart.entity.CartItemID;
 import com.example.marketapi.domain.cart.exception.CartException;
 import com.example.marketapi.domain.cart.repository.CartInfoRepository;
 import com.example.marketapi.domain.cart.repository.CartItemRepository;
@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -38,6 +37,12 @@ public class CartService {
     }
 
     @Transactional
+    public CartInfoDto getUserCartInfo(Long userId) {
+        CartInfo cartInfo = cartInfoRepository.findCartInfoByUserAccountUserId(userId)
+                .orElseThrow(() -> new CartException(CartException.ErrorCode.CART_INFO_NOT_EXISTS));
+        return CartInfoDto.fromEntity(cartInfo);
+    }
+    @Transactional
     public List<CartItem> getUserCartItems(Long userId) {
         CartInfo cartInfo = cartInfoRepository.findCartInfoByUserAccountUserId(userId)
                 .orElseThrow(() -> new CartException(CartException.ErrorCode.CART_INFO_NOT_EXISTS));
@@ -45,7 +50,8 @@ public class CartService {
     }
 
     @Transactional
-    public void addProductToCart(Long cartId, Long productId, Long count) {
+    public CartInfoDto addProductToCart(Long cartId, Long productId, Long count) {
+        // TODO: 동일 상품 존재시 추가 하지 말고 수량 증가 로직 추가
         Product product = ProductDto.toEntity(productService.getProduct(productId));
         if (product.getInStock() < count) {
             throw new ProductException(ProductException.ErrorCode.INSUFFICIENT_STOCK_EXCEPTION);
@@ -65,7 +71,8 @@ public class CartService {
                 .cartItemList(cartInfo.getCartItemList())
                 .userAccount(cartInfo.getUserAccount())
                 .build();
-        cartInfoRepository.save(newCartInfo);
+        CartInfo saved = cartInfoRepository.save(newCartInfo);
+        return CartInfoDto.fromEntity(saved);
     }
 
 }
