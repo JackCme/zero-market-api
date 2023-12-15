@@ -1,6 +1,8 @@
 package com.example.marketapi.global.exception;
 
 import com.example.marketapi.domain.auth.exception.AuthException;
+import com.example.marketapi.domain.cart.exception.CartException;
+import com.example.marketapi.domain.product.exception.ProductException;
 import com.example.marketapi.domain.user.exception.UserAccountException;
 import com.example.marketapi.global.exception.model.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalErrorAdvice {
     // Global Exception Handler
-    @ExceptionHandler({UserAccountException.class, AuthException.class, Exception.class})
+    @ExceptionHandler({UserAccountException.class, AuthException.class, Exception.class, ProductException.class, CartException.class})
     public ResponseEntity<ErrorResponse> handleException(Exception e) {
         // TODO: 반복되는 코드가 많으니 OOP 를 활용해서 Exception 클래스들을 리팩토링 해보자
         if (e instanceof UserAccountException) {
