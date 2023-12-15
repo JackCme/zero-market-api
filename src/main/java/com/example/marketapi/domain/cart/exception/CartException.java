@@ -21,6 +21,7 @@ public class CartException extends RuntimeException {
     @AllArgsConstructor
     public enum ErrorCode {
         CART_INFO_ALREADY_EXISTS(400, "이미 장바구니가 존재합니다.")
+        , CART_INFO_NOT_EXISTS(404, "장바구니 정보가 없습니다.")
         ;
         private final int status;
         private final String description;

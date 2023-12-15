@@ -2,9 +2,11 @@ package com.example.marketapi.domain.cart.service;
 
 import com.example.marketapi.domain.cart.entity.CartInfo;
 import com.example.marketapi.domain.cart.entity.CartItem;
+import com.example.marketapi.domain.cart.entity.CartItemID;
 import com.example.marketapi.domain.cart.exception.CartException;
 import com.example.marketapi.domain.cart.repository.CartInfoRepository;
 import com.example.marketapi.domain.cart.repository.CartItemRepository;
+import com.example.marketapi.domain.product.dto.ProductDto;
 import com.example.marketapi.domain.product.entity.Product;
 import com.example.marketapi.domain.product.exception.ProductException;
 import com.example.marketapi.domain.product.repository.ProductRepository;
@@ -22,10 +24,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -37,10 +41,10 @@ class CartServiceTest {
     private CartItemRepository cartItemRepository;
     @Mock
     private ProductRepository productRepository;
+    @Mock
+    private ProductService productService;
     @InjectMocks
     private CartService cartService;
-    @InjectMocks
-    private ProductService productService;
 
     @Test
     @DisplayName("사용자 장바구니 생성 성공")
@@ -121,6 +125,10 @@ class CartServiceTest {
     void addProductToCart() {
         // Given
         Long cartId = 1L;
+        CartInfo cartInfo = CartInfo.builder()
+                .itemCount(1L)
+                .cartId(cartId)
+                .build();
         Long productId = 1L;
         String productName = "샘플상품";
         Long inStock = 10L;
@@ -129,12 +137,33 @@ class CartServiceTest {
                 .inStock(inStock)
                 .productId(productId)
                 .build();
-        Long count = 2L;
-        given(productRepository.findById(productId)).willReturn(Optional.of(product));
+        Long productCount = 2L;
+        CartItemID cartItemID = CartItemID.builder()
+                .cartId(cartId).productId(productId)
+                .build();
+        CartItem cartItem = CartItem.builder()
+                .productCnt(productCount)
+                .cartItemID(cartItemID)
+                .product(product)
+                .build();
+        given(cartInfoRepository.findById(cartId)).willReturn(Optional.of(cartInfo));
+        given(cartItemRepository.save(any())).willReturn(cartItem);
+        given(productService.getProduct(productId)).willReturn(ProductDto.fromEntity(product));
+        ArgumentCaptor<CartInfo> captor = ArgumentCaptor.forClass(CartInfo.class);
+        ArgumentCaptor<CartItem> itemArgumentCaptor = ArgumentCaptor.forClass(CartItem.class);
+
         // When
-        cartService.addProductToCart(cartId, productId, count);
+        cartService.addProductToCart(cartId, productId, productCount);
         // Then
-        verify(productService, times(1)).decreaseProductStock(productId, count);
+        verify(cartItemRepository, times(1)).save(itemArgumentCaptor.capture());
+        assertEquals(itemArgumentCaptor.getValue().getCartItemID().getCartId(), cartId);
+        assertEquals(itemArgumentCaptor.getValue().getProduct().getProductId(), productId);
+
+
+        verify(cartInfoRepository, times(1)).save(captor.capture());
+        assertThat(captor.getValue().getItemCount()).isEqualTo(cartInfo.getItemCount() + 1);
+
+
     }
 
     @Test
@@ -151,7 +180,7 @@ class CartServiceTest {
                 .productId(productId)
                 .build();
         Long count = 10L;
-        given(productRepository.findById(productId)).willReturn(Optional.of(product));
+        given(productService.getProduct(productId)).willReturn(ProductDto.fromEntity(product));
         // When
         ProductException productException = assertThrows(ProductException.class, () -> cartService.addProductToCart(cartId, productId, count));
         // Then
