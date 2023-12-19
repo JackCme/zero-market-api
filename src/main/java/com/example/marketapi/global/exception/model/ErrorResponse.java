@@ -8,6 +8,11 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class ErrorResponse {
-    private String errorMessage;
     private String errorCode;
+    private String errorMessage;
+
+    public ErrorResponse(ResultCode resultCode) {
+        errorCode = "ERR-" + resultCode.getStatusCode();
+        errorMessage = resultCode.getDescription();
+    }
 }

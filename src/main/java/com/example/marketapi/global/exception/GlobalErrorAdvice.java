@@ -1,12 +1,8 @@
 package com.example.marketapi.global.exception;
 
-import com.example.marketapi.domain.auth.exception.AuthException;
-import com.example.marketapi.domain.cart.exception.CartException;
-import com.example.marketapi.domain.product.exception.ProductException;
-import com.example.marketapi.domain.user.exception.UserAccountException;
 import com.example.marketapi.global.exception.model.ErrorResponse;
+import com.example.marketapi.global.exception.model.ResultCode;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,31 +12,24 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalErrorAdvice {
     // Global Exception Handler
-    @ExceptionHandler({UserAccountException.class, AuthException.class, Exception.class, ProductException.class, CartException.class})
+    @ExceptionHandler({GlobalException.class})
     public ResponseEntity<ErrorResponse> handleException(Exception e) {
-        // TODO: 반복되는 코드가 많으니 OOP 를 활용해서 Exception 클래스들을 리팩토링 해보자
-        if (e instanceof UserAccountException) {
-            log.error("UserAccountException has occurred.", e);
-            UserAccountException.ErrorCode error = ((UserAccountException) e).getErrorCode();
+        // early return
+        if (e instanceof GlobalException) {
+            log.error("API Exception has occurred.", e);
+            ResultCode resultCode = ((GlobalException) e).getResultCode();
             return new ResponseEntity<>(
-                    new ErrorResponse(error.getDescription(), error.toString()),
-                    HttpStatus.valueOf(error.getStatus())
-            );
-        } else if (e instanceof AuthException) {
-            log.error("AuthException has occurred.", e);
-            AuthException.ErrorCode error = ((AuthException) e).getErrorCode();
-            return new ResponseEntity<>(
-                    new ErrorResponse(error.getDescription(), error.toString()),
-                    HttpStatus.valueOf(error.getStatus())
-            );
-        } else {
-            log.error("Exception has occurred.", e);
-            HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-            return new ResponseEntity<>(
-                    new ErrorResponse(httpStatus.getReasonPhrase(), httpStatus.name()),
-                    httpStatus
+                    new ErrorResponse(resultCode),
+                    resultCode.getHttpStatus()
             );
         }
+
+        log.error("Exception has occurred.", e);
+        ResultCode internalServerError = ResultCode.INTERNAL_SERVER_ERROR;
+        return new ResponseEntity<>(
+                new ErrorResponse(internalServerError),
+                internalServerError.getHttpStatus()
+        );
 
     }
 
@@ -49,10 +38,10 @@ public class GlobalErrorAdvice {
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         log.error("MethodArgumentNotValidException is occured.", e);
 
-        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        ResultCode invalidRequestParameter = ResultCode.INVALID_REQUEST_PARAMETER;
         return new ResponseEntity<>(
-                new ErrorResponse("올바른 요청이 아닙니다.", httpStatus.name()),
-                httpStatus
+                new ErrorResponse(invalidRequestParameter),
+                invalidRequestParameter.getHttpStatus()
         );
     }
 }

@@ -3,8 +3,9 @@ package com.example.marketapi.domain.user.service;
 import com.example.marketapi.domain.cart.service.CartService;
 import com.example.marketapi.domain.user.dto.UserAccountDto;
 import com.example.marketapi.domain.user.entity.UserAccount;
-import com.example.marketapi.domain.user.exception.UserAccountException;
 import com.example.marketapi.domain.user.repository.UserAccountRepository;
+import com.example.marketapi.global.exception.GlobalException;
+import com.example.marketapi.global.exception.model.ResultCode;
 import com.example.marketapi.global.util.ValidationUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -37,19 +38,19 @@ public class UserAccountService implements UserDetailsService {
 
     private void validateCreateUserAccount(String email, String password) {
         if (!ValidationUtil.isValidEmail(email)) {
-            throw new UserAccountException(UserAccountException.ErrorCode.EMAIL_NOT_VALID);
+            throw new GlobalException(ResultCode.EMAIL_NOT_VALID);
         }
         if (!ValidationUtil.isValidPassword(password)) {
-            throw new UserAccountException(UserAccountException.ErrorCode.PASSWORD_NOT_VALID);
+            throw new GlobalException(ResultCode.PASSWORD_NOT_VALID);
         }
         if (userAccountRepository.findUserAccountByEmail(email).isPresent()) {
-            throw new UserAccountException(UserAccountException.ErrorCode.USER_ALREADY_EXISTS);
+            throw new GlobalException(ResultCode.USER_ALREADY_EXISTS);
         }
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) {
         return userAccountRepository.findUserAccountByEmail(username)
-                .orElseThrow(() -> new UserAccountException(UserAccountException.ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new GlobalException(ResultCode.USER_NOT_FOUND));
     }
 }
