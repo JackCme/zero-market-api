@@ -51,20 +51,21 @@ CREATE TABLE `cart_item` (
 
 -- order_info: table
 CREATE TABLE `order_info` (
-  `order_id` int DEFAULT NULL,
+  `order_id` int NOT NULL AUTO_INCREMENT,
   `user_id` int DEFAULT NULL,
-  UNIQUE KEY `order_info_pk` (`order_id`,`user_id`),
+  PRIMARY KEY (`order_id`),
   KEY `order_info_user_account_uid_fk` (`user_id`),
   CONSTRAINT `order_info_user_account_uid_fk` FOREIGN KEY (`user_id`) REFERENCES `user_account` (`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='주문정보';
 
 -- order_item: table
 CREATE TABLE `order_item` (
+  `id` int NOT NULL AUTO_INCREMENT,
   `order_id` int DEFAULT NULL,
   `product_id` int DEFAULT NULL,
   `status` varchar(100) DEFAULT NULL,
   `count` int DEFAULT NULL,
-  UNIQUE KEY `order_item_pk` (`order_id`,`product_id`),
+  PRIMARY KEY (`id`),
   KEY `order_item_product_product_id_fk` (`product_id`),
   CONSTRAINT `order_item_order_info_order_id_fk` FOREIGN KEY (`order_id`) REFERENCES `order_info` (`order_id`),
   CONSTRAINT `order_item_product_product_id_fk` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`)
