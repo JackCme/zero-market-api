@@ -142,6 +142,7 @@ class CartServiceTest {
                 .product(product)
                 .build();
         given(cartInfoRepository.findById(cartId)).willReturn(Optional.of(cartInfo));
+        given(cartInfoRepository.save(any())).willReturn(cartInfo);
         given(cartItemRepository.save(any())).willReturn(cartItem);
         given(productService.getProduct(productId)).willReturn(ProductDto.fromEntity(product));
         ArgumentCaptor<CartInfo> captor = ArgumentCaptor.forClass(CartInfo.class);

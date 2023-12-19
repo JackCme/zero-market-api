@@ -1,5 +1,6 @@
 package com.example.marketapi.domain.user.service;
 
+import com.example.marketapi.domain.cart.service.CartService;
 import com.example.marketapi.domain.user.dto.UserAccountDto;
 import com.example.marketapi.domain.user.entity.UserAccount;
 import com.example.marketapi.domain.user.exception.UserAccountException;
@@ -26,6 +27,8 @@ class UserServiceTest {
     private UserAccountRepository userAccountRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private CartService cartService;
     @InjectMocks
     private UserAccountService userAccountService;
 
