@@ -26,6 +26,7 @@ public class OrderInfo {
     private UserAccount userAccount;
 
     @OneToMany(mappedBy = "orderInfo")
+    @Builder.Default
     private List<OrderItem> orderItemList = new ArrayList<>();
 
 }

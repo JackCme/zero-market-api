@@ -27,5 +27,6 @@ public class CartInfo {
     private UserAccount userAccount;
 
     @OneToMany(mappedBy = "cartInfo")
+    @Builder.Default
     private List<CartItem> cartItemList = new ArrayList<>();
 }
