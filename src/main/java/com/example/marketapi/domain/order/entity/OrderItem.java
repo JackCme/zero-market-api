@@ -17,7 +17,8 @@ public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private String status;
+    @Convert(converter = OrderItemStatusConverter.class)
+    private OrderItemStatus status;
     private Long count;
 
     @ManyToOne
