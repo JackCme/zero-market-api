@@ -32,4 +32,12 @@ public class ProductService {
         productRepository.save(ProductDto.toEntity(productDto));
     }
 
+    @Transactional
+    public void increaseProductStock(Long productId, Long byCount) {
+        ProductDto productDto = getProduct(productId);
+        productDto.setInStock(productDto.getInStock() + byCount);
+
+        productRepository.save(ProductDto.toEntity(productDto));
+    }
+
 }
