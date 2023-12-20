@@ -2,6 +2,7 @@ package com.example.marketapi.domain.order.service;
 
 import com.example.marketapi.domain.cart.entity.CartInfo;
 import com.example.marketapi.domain.cart.repository.CartInfoRepository;
+import com.example.marketapi.domain.cart.repository.CartItemRepository;
 import com.example.marketapi.domain.order.dto.OrderInfoDto;
 import com.example.marketapi.domain.order.entity.OrderInfo;
 import com.example.marketapi.domain.order.entity.OrderItem;
@@ -29,6 +30,7 @@ public class OrderService {
     private final OrderInfoRepository orderInfoRepository;
     private final OrderItemRepository orderItemRepository;
     private final CartInfoRepository cartInfoRepository;
+    private final CartItemRepository cartItemRepository;
     private final ProductService productService;
 
     @Transactional
@@ -44,6 +46,10 @@ public class OrderService {
         orderItemRepository.saveAll(orderItems);
         orderItems.forEach(item ->
                 productService.decreaseProductStock(item.getProduct().getProductId(), item.getCount()));
+
+        cartItemRepository.deleteCartItemsByCartInfo(cartInfo);
+        cartInfo.setItemCount(0L);
+        cartInfoRepository.save(cartInfo);
         return OrderInfoDto.fromEntity(orderInfo, orderItems);
     }
 
