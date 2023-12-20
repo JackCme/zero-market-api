@@ -16,7 +16,7 @@ import javax.persistence.*;
 public class CartItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     @Builder.Default
     private Long productCnt = 0L;
 

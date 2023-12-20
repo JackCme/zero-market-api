@@ -84,40 +84,6 @@ class CartServiceTest {
         assertEquals(ResultCode.CART_INFO_ALREADY_EXISTS.getDescription(), cartException.getResultCode().getDescription());
     }
 
-//    @Test
-//    @DisplayName("사용자 장바구니 상품목록 조회 성공")
-//    void getUserCartItemsSuccess() {
-//        // Given
-//        Long userId = 1L;
-//        UserAccount userAccount = UserAccount.builder()
-//                .userId(userId)
-//                .build();
-//        List<CartItem> cartItems = createCartItems(3);
-//        // When
-//        ArrayList<CartItem> userCartItems = cartService.getUserCartItems(userId);
-//        // Then
-//    }
-
-    private List<CartItem> createCartItems(int length) {
-        List<CartItem> cartItems = new ArrayList<>();
-        for (int i = 0; i < length; i++) {
-            String productName = "샘플상품" + i;
-            Long inStock = 10L;
-            Long price = 10_000L;
-            Product product = Product.builder()
-                    .name(productName)
-                    .inStock(inStock)
-                    .price(price)
-                    .productId(Integer.toUnsignedLong(i + 1))
-                    .build();
-            cartItems.add(CartItem.builder()
-                    .product(product)
-                    .productCnt(1L)
-                    .build());
-        }
-        return cartItems;
-    }
-
     @Test
     @DisplayName("장바구니 상품담기 성공")
     void addProductToCart() {

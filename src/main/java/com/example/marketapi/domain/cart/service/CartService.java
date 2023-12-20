@@ -10,13 +10,14 @@ import com.example.marketapi.domain.product.entity.Product;
 import com.example.marketapi.domain.product.service.ProductService;
 import com.example.marketapi.domain.user.entity.UserAccount;
 import com.example.marketapi.global.exception.GlobalException;
-import com.example.marketapi.global.exception.model.ResultCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+
+import static com.example.marketapi.global.exception.model.ResultCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -29,24 +30,25 @@ public class CartService {
     public void createUserCart(Long userId) {
         cartInfoRepository.findCartInfoByUserAccountUserId(userId)
                 .ifPresent(cart -> {
-                    throw new GlobalException(ResultCode.CART_INFO_ALREADY_EXISTS);
+                    throw new GlobalException(CART_INFO_ALREADY_EXISTS);
                 });
         cartInfoRepository.save(CartInfo.builder()
-                        .itemCount(0L)
-                        .userAccount(UserAccount.builder().userId(userId).build())
+                .itemCount(0L)
+                .userAccount(UserAccount.builder().userId(userId).build())
                 .build());
     }
 
     @Transactional
     public CartInfoDto getUserCartInfo(Long userId) {
         CartInfo cartInfo = cartInfoRepository.findCartInfoByUserAccountUserId(userId)
-                .orElseThrow(() -> new GlobalException(ResultCode.CART_INFO_NOT_EXISTS));
+                .orElseThrow(() -> new GlobalException(CART_INFO_NOT_EXISTS));
         return CartInfoDto.fromEntity(cartInfo);
     }
+
     @Transactional
     public List<CartItem> getUserCartItems(Long userId) {
         CartInfo cartInfo = cartInfoRepository.findCartInfoByUserAccountUserId(userId)
-                .orElseThrow(() -> new GlobalException(ResultCode.CART_INFO_NOT_EXISTS));
+                .orElseThrow(() -> new GlobalException(CART_INFO_NOT_EXISTS));
         return cartInfo.getCartItemList();
     }
 
@@ -62,7 +64,16 @@ public class CartService {
 
         checkProductStockAvailable(product, cartItem);
 
-        cartItemRepository.save(cartItem);
+        if (cartItem.getId() == null && cartItem.getProductCnt() <= 0) {
+            throw new GlobalException(CART_ITEM_NOT_EXISTS);
+        }
+        // count 값이 음수면 수량 감소 가능
+        if (cartItem.getProductCnt() <= 0) {
+            assert cartItem.getId() != null;
+            cartItemRepository.deleteById(cartItem.getId());
+        } else {
+            cartItemRepository.save(cartItem);
+        }
 
         List<CartItem> cartItemList = cartItemRepository.findCartItemsByCartInfo(cartInfo);
         CartInfo newCartInfo = CartInfo.builder()
@@ -77,12 +88,12 @@ public class CartService {
 
     private CartInfo findCartInfoByCartId(Long cartId) {
         return cartInfoRepository.findById(cartId)
-                .orElseThrow(() -> new GlobalException(ResultCode.CART_INFO_NOT_EXISTS));
+                .orElseThrow(() -> new GlobalException(CART_INFO_NOT_EXISTS));
     }
 
     private void checkProductStockAvailable(Product product, CartItem cartItem) {
         if (product.getInStock() < cartItem.getProductCnt()) {
-            throw new GlobalException(ResultCode.INSUFFICIENT_STOCK_EXCEPTION);
+            throw new GlobalException(INSUFFICIENT_STOCK_EXCEPTION);
         }
     }
 

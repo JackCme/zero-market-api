@@ -19,6 +19,7 @@ public enum ResultCode {
     , CART_INFO_ALREADY_EXISTS(HttpStatus.BAD_REQUEST,4000, "이미 장바구니가 존재합니다")
     , CART_INFO_NOT_EXISTS(HttpStatus.NOT_FOUND,4040, "장바구니 정보가 없습니다")
     , CART_ITEM_EMPTY(HttpStatus.BAD_REQUEST,4000, "장바구니에 상품이 없습니다")
+    , CART_ITEM_NOT_EXISTS(HttpStatus.BAD_REQUEST,4000, "장바구니에 상품이 없습니다")
     , PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND,4040, "상품이 존재하지 않습니다")
     , INSUFFICIENT_STOCK_EXCEPTION(HttpStatus.BAD_REQUEST,4000, "상품의 재고가 부족합니다")
     , ORDER_INFO_NOT_EXISTS(HttpStatus.NOT_FOUND,4040, "존재하지 않는 주문입니다")
