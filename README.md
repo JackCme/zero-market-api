@@ -1,5 +1,11 @@
 # zero-market-api
 
+# How to run
+```bash
+$ cd docker/mysql
+$ docker compose up -d
+```
+
 # 구현 요구사항
 ## 테이블
 
