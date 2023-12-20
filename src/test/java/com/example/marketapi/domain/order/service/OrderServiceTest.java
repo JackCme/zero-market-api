@@ -3,6 +3,7 @@ package com.example.marketapi.domain.order.service;
 import com.example.marketapi.domain.cart.entity.CartInfo;
 import com.example.marketapi.domain.cart.entity.CartItem;
 import com.example.marketapi.domain.cart.repository.CartInfoRepository;
+import com.example.marketapi.domain.cart.repository.CartItemRepository;
 import com.example.marketapi.domain.order.dto.OrderInfoDto;
 import com.example.marketapi.domain.order.entity.OrderInfo;
 import com.example.marketapi.domain.order.entity.OrderItem;
@@ -41,6 +42,8 @@ class OrderServiceTest {
     private OrderItemRepository orderItemRepository;
     @Mock
     private CartInfoRepository cartInfoRepository;
+    @Mock
+    private CartItemRepository cartItemRepository;
     @Mock
     private ProductService productService;
     @InjectMocks
@@ -87,6 +90,7 @@ class OrderServiceTest {
         verify(productService, times(cartItems.size())).decreaseProductStock(anyLong(), anyLong());
         verify(orderInfoRepository, times(1)).save(any());
         verify(orderItemRepository, times(1)).saveAll(any());
+        verify(cartItemRepository, times(1)).deleteCartItemsByCartInfo(any());
         assertEquals(orderInfoDto.getOrderItems().size(), cartItems.size());
         assertEquals(OrderItemStatus.ORDERED, orderInfoDto.getOrderItems().get(0).getOrderItemStatus());
         assertEquals(OrderItemStatus.ORDERED, orderInfoDto.getOrderItems().get(1).getOrderItemStatus());

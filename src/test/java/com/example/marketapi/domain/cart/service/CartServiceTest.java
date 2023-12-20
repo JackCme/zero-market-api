@@ -144,6 +144,10 @@ class CartServiceTest {
         given(cartInfoRepository.findById(cartId)).willReturn(Optional.of(cartInfo));
         given(cartInfoRepository.save(any())).willReturn(cartInfo);
         given(cartItemRepository.save(any())).willReturn(cartItem);
+
+        List<CartItem> cartItemList = new ArrayList<>();
+        cartItemList.add(cartItem);
+        given(cartItemRepository.findCartItemsByCartInfo(cartInfo)).willReturn(cartItemList);
         ArgumentCaptor<CartInfo> captor = ArgumentCaptor.forClass(CartInfo.class);
         ArgumentCaptor<CartItem> itemArgumentCaptor = ArgumentCaptor.forClass(CartItem.class);
 
@@ -157,8 +161,6 @@ class CartServiceTest {
 
         verify(cartInfoRepository, times(1)).save(captor.capture());
         assertThat(captor.getValue().getItemCount()).isEqualTo(cartInfo.getItemCount() + 1);
-
-
     }
 
     @Test
@@ -175,7 +177,11 @@ class CartServiceTest {
                 .productId(productId)
                 .build();
         Long count = 10L;
+        CartInfo cartInfo = CartInfo.builder()
+                .cartId(cartId)
+                .build();
         given(productService.getProduct(productId)).willReturn(ProductDto.fromEntity(product));
+        given(cartInfoRepository.findById(cartId)).willReturn(Optional.of(cartInfo));
         // When
         GlobalException productException = assertThrows(GlobalException.class, () -> cartService.addProductToCart(cartId, productId, count));
         // Then
