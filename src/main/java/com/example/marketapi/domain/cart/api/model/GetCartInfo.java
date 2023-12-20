@@ -1,13 +1,12 @@
 package com.example.marketapi.domain.cart.api.model;
 
 import com.example.marketapi.domain.cart.dto.CartInfoDto;
-import com.example.marketapi.domain.product.dto.ProductDto;
+import com.example.marketapi.domain.cart.dto.CartItemDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class GetCartInfo {
     @Getter
@@ -16,17 +15,13 @@ public class GetCartInfo {
     public static class Response {
         private Long cartId;
         private Long cartItemCount;
-        private List<ProductDto> cartItems;
+        private List<CartItemDto> cartItems;
 
         public static Response from(CartInfoDto cartInfoDto) {
                 return Response.builder()
                         .cartId(cartInfoDto.getCartId())
                         .cartItemCount(cartInfoDto.getCartItemCount())
-                        .cartItems(
-                                cartInfoDto.getCartItemList().stream()
-                                        .map(cartItem -> ProductDto.fromEntity(cartItem.getProduct()))
-                                        .collect(Collectors.toList())
-                        )
+                        .cartItems(cartInfoDto.getCartItemList())
                         .build();
         }
     }

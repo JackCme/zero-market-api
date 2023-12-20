@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -51,28 +52,38 @@ public class CartService {
 
     @Transactional
     public CartInfoDto addProductToCart(Long cartId, Long productId, Long count) {
-        // TODO: 동일 상품 존재시 추가 하지 말고 수량 증가 로직 추가
         Product product = ProductDto.toEntity(productService.getProduct(productId));
-        if (product.getInStock() < count) {
-            throw new GlobalException(ResultCode.INSUFFICIENT_STOCK_EXCEPTION);
-        }
-        CartInfo cartInfo = cartInfoRepository.findById(cartId)
-                .orElseThrow(() -> new GlobalException(ResultCode.CART_INFO_NOT_EXISTS));
+        CartInfo cartInfo = findCartInfoByCartId(cartId);
+        CartItem cartItem = cartInfo.getCartItemList().stream()
+                .filter(item -> Objects.equals(item.getProduct().getProductId(), product.getProductId()))
+                .findFirst()
+                .orElse(CartItem.createNewCartItem(cartInfo, product))
+                .addCount(count);
 
-        CartItem cartItem = CartItem.builder()
-                .cartInfo(cartInfo)
-                .productCnt(count)
-                .product(product)
-                .build();
+        checkProductStockAvailable(product, cartItem);
+
         cartItemRepository.save(cartItem);
+
+        List<CartItem> cartItemList = cartItemRepository.findCartItemsByCartInfo(cartInfo);
         CartInfo newCartInfo = CartInfo.builder()
                 .cartId(cartInfo.getCartId())
-                .itemCount(cartInfo.getItemCount() + 1)
-                .cartItemList(cartInfo.getCartItemList())
                 .userAccount(cartInfo.getUserAccount())
+                .itemCount((long) cartItemList.size())
+                .cartItemList(cartItemList)
                 .build();
         CartInfo saved = cartInfoRepository.save(newCartInfo);
         return CartInfoDto.fromEntity(saved);
+    }
+
+    private CartInfo findCartInfoByCartId(Long cartId) {
+        return cartInfoRepository.findById(cartId)
+                .orElseThrow(() -> new GlobalException(ResultCode.CART_INFO_NOT_EXISTS));
+    }
+
+    private void checkProductStockAvailable(Product product, CartItem cartItem) {
+        if (product.getInStock() < cartItem.getProductCnt()) {
+            throw new GlobalException(ResultCode.INSUFFICIENT_STOCK_EXCEPTION);
+        }
     }
 
 }

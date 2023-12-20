@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Builder
 @Getter
@@ -14,13 +15,18 @@ import java.util.List;
 public class CartInfoDto {
     private Long cartId;
     private Long cartItemCount;
-    private List<CartItem> cartItemList = new ArrayList<>();
+    @Builder.Default
+    private List<CartItemDto> cartItemList = new ArrayList<>();
 
     public static CartInfoDto fromEntity(CartInfo cartInfo) {
         return CartInfoDto.builder()
                 .cartId(cartInfo.getCartId())
                 .cartItemCount(cartInfo.getItemCount())
-                .cartItemList(cartInfo.getCartItemList())
+                .cartItemList(
+                        cartInfo.getCartItemList().stream()
+                                .map(CartItemDto::fromEntity)
+                                .collect(Collectors.toList())
+                )
                 .build();
     }
 

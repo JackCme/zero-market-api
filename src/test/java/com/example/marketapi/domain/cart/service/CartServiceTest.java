@@ -124,7 +124,6 @@ class CartServiceTest {
         // Given
         Long cartId = 1L;
         CartInfo cartInfo = CartInfo.builder()
-                .itemCount(1L)
                 .cartId(cartId)
                 .build();
         Long productId = 1L;
@@ -141,10 +140,10 @@ class CartServiceTest {
                 .cartInfo(cartInfo)
                 .product(product)
                 .build();
+        given(productService.getProduct(productId)).willReturn(ProductDto.fromEntity(product));
         given(cartInfoRepository.findById(cartId)).willReturn(Optional.of(cartInfo));
         given(cartInfoRepository.save(any())).willReturn(cartInfo);
         given(cartItemRepository.save(any())).willReturn(cartItem);
-        given(productService.getProduct(productId)).willReturn(ProductDto.fromEntity(product));
         ArgumentCaptor<CartInfo> captor = ArgumentCaptor.forClass(CartInfo.class);
         ArgumentCaptor<CartItem> itemArgumentCaptor = ArgumentCaptor.forClass(CartItem.class);
 

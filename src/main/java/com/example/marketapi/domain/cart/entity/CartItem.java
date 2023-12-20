@@ -17,7 +17,8 @@ public class CartItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private Long productCnt;
+    @Builder.Default
+    private Long productCnt = 0L;
 
     @ManyToOne
     @JoinColumn(name="cart_id")
@@ -25,4 +26,16 @@ public class CartItem {
     @ManyToOne
     @JoinColumn(name="product_id")
     private Product product;
+
+    public static CartItem createNewCartItem(CartInfo cartInfo, Product product) {
+        return CartItem.builder()
+                .cartInfo(cartInfo)
+                .product(product)
+                .build();
+    }
+
+    public CartItem addCount(Long count) {
+        this.productCnt += count;
+        return this;
+    }
 }

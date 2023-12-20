@@ -20,7 +20,8 @@ public class CartInfo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Long cartId;
-    private Long itemCount;
+    @Builder.Default
+    private Long itemCount = 0L;
 
     @OneToOne
     @JoinColumn(name="user_id")
