@@ -1,10 +1,7 @@
 package com.example.marketapi.domain.order.entity;
 
 import com.example.marketapi.domain.product.entity.Product;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -18,6 +15,7 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @Convert(converter = OrderItemStatusConverter.class)
+    @Setter
     private OrderItemStatus status;
     private Long count;
 
