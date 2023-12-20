@@ -1,6 +1,7 @@
 package com.example.marketapi.domain.auth.api;
 
-import com.example.marketapi.domain.auth.exception.AuthException;
+import com.example.marketapi.global.exception.GlobalException;
+import com.example.marketapi.global.exception.model.ResultCode;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,11 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     @GetMapping("/denied")
     public void denied() {
-        throw new AuthException(AuthException.ErrorCode.ACCESS_DENIED);
+        throw new GlobalException(ResultCode.ACCESS_DENIED);
     }
 
     @GetMapping("/unauthenticated")
     public void unauthenticated() {
-        throw new AuthException(AuthException.ErrorCode.UNAUTHENTICATED);
+        throw new GlobalException(ResultCode.UNAUTHENTICATED);
     }
 }

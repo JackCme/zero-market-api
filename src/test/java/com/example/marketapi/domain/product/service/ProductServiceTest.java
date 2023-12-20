@@ -2,8 +2,9 @@ package com.example.marketapi.domain.product.service;
 
 import com.example.marketapi.domain.product.dto.ProductDto;
 import com.example.marketapi.domain.product.entity.Product;
-import com.example.marketapi.domain.product.exception.ProductException;
+import com.example.marketapi.global.exception.GlobalException;
 import com.example.marketapi.domain.product.repository.ProductRepository;
+import com.example.marketapi.global.exception.model.ResultCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,10 +62,10 @@ class ProductServiceTest {
         Long productId = 1L;
         given(productRepository.findById(anyLong())).willReturn(Optional.empty());
         // When
-        ProductException productException = assertThrows(ProductException.class, () -> productService.getProduct(productId));
+        GlobalException productException = assertThrows(GlobalException.class, () -> productService.getProduct(productId));
         // Then
-        assertEquals(ProductException.ErrorCode.PRODUCT_NOT_FOUND, productException.getErrorCode());
-        assertEquals(ProductException.ErrorCode.PRODUCT_NOT_FOUND.getDescription(), productException.getErrorMessage());
+        assertEquals(ResultCode.PRODUCT_NOT_FOUND, productException.getResultCode());
+        assertEquals(ResultCode.PRODUCT_NOT_FOUND.getDescription(), productException.getResultCode().getDescription());
     }
 
     @Test
@@ -112,9 +113,9 @@ class ProductServiceTest {
         Long decreaseStockBy = 11L;
         given(productRepository.findById(anyLong())).willReturn(Optional.of(product));
         // When
-        ProductException productException = assertThrows(ProductException.class, () -> productService.decreaseProductStock(productId, decreaseStockBy));
+        GlobalException productException = assertThrows(GlobalException.class, () -> productService.decreaseProductStock(productId, decreaseStockBy));
         // Then
-        assertEquals(ProductException.ErrorCode.INSUFFICIENT_STOCK_EXCEPTION, productException.getErrorCode());
-        assertEquals(ProductException.ErrorCode.INSUFFICIENT_STOCK_EXCEPTION.getDescription(), productException.getErrorMessage());
+        assertEquals(ResultCode.INSUFFICIENT_STOCK_EXCEPTION, productException.getResultCode());
+        assertEquals(ResultCode.INSUFFICIENT_STOCK_EXCEPTION.getDescription(), productException.getResultCode().getDescription());
     }
 }

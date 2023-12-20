@@ -2,15 +2,15 @@ package com.example.marketapi.domain.cart.service;
 
 import com.example.marketapi.domain.cart.entity.CartInfo;
 import com.example.marketapi.domain.cart.entity.CartItem;
-import com.example.marketapi.domain.cart.exception.CartException;
 import com.example.marketapi.domain.cart.repository.CartInfoRepository;
 import com.example.marketapi.domain.cart.repository.CartItemRepository;
 import com.example.marketapi.domain.product.dto.ProductDto;
 import com.example.marketapi.domain.product.entity.Product;
-import com.example.marketapi.domain.product.exception.ProductException;
 import com.example.marketapi.domain.product.repository.ProductRepository;
 import com.example.marketapi.domain.product.service.ProductService;
 import com.example.marketapi.domain.user.entity.UserAccount;
+import com.example.marketapi.global.exception.GlobalException;
+import com.example.marketapi.global.exception.model.ResultCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -78,10 +78,10 @@ class CartServiceTest {
                 .build();
         given(cartInfoRepository.findCartInfoByUserAccountUserId(anyLong())).willReturn(Optional.of(cartInfo));
         // When
-        CartException cartException = assertThrows(CartException.class, () -> cartService.createUserCart(userId));
+        GlobalException cartException = assertThrows(GlobalException.class, () -> cartService.createUserCart(userId));
         // Then
-        assertEquals(CartException.ErrorCode.CART_INFO_ALREADY_EXISTS, cartException.getErrorCode());
-        assertEquals(CartException.ErrorCode.CART_INFO_ALREADY_EXISTS.getDescription(), cartException.getErrorMessage());
+        assertEquals(ResultCode.CART_INFO_ALREADY_EXISTS, cartException.getResultCode());
+        assertEquals(ResultCode.CART_INFO_ALREADY_EXISTS.getDescription(), cartException.getResultCode().getDescription());
     }
 
 //    @Test
@@ -142,6 +142,7 @@ class CartServiceTest {
                 .product(product)
                 .build();
         given(cartInfoRepository.findById(cartId)).willReturn(Optional.of(cartInfo));
+        given(cartInfoRepository.save(any())).willReturn(cartInfo);
         given(cartItemRepository.save(any())).willReturn(cartItem);
         given(productService.getProduct(productId)).willReturn(ProductDto.fromEntity(product));
         ArgumentCaptor<CartInfo> captor = ArgumentCaptor.forClass(CartInfo.class);
@@ -177,9 +178,9 @@ class CartServiceTest {
         Long count = 10L;
         given(productService.getProduct(productId)).willReturn(ProductDto.fromEntity(product));
         // When
-        ProductException productException = assertThrows(ProductException.class, () -> cartService.addProductToCart(cartId, productId, count));
+        GlobalException productException = assertThrows(GlobalException.class, () -> cartService.addProductToCart(cartId, productId, count));
         // Then
-        assertEquals(ProductException.ErrorCode.INSUFFICIENT_STOCK_EXCEPTION, productException.getErrorCode());
-        assertEquals(ProductException.ErrorCode.INSUFFICIENT_STOCK_EXCEPTION.getDescription(), productException.getErrorMessage());
+        assertEquals(ResultCode.INSUFFICIENT_STOCK_EXCEPTION, productException.getResultCode());
+        assertEquals(ResultCode.INSUFFICIENT_STOCK_EXCEPTION.getDescription(), productException.getResultCode().getDescription());
     }
 }

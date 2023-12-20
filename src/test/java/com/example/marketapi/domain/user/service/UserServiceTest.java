@@ -1,9 +1,11 @@
 package com.example.marketapi.domain.user.service;
 
+import com.example.marketapi.domain.cart.service.CartService;
 import com.example.marketapi.domain.user.dto.UserAccountDto;
 import com.example.marketapi.domain.user.entity.UserAccount;
-import com.example.marketapi.domain.user.exception.UserAccountException;
+import com.example.marketapi.global.exception.GlobalException;
 import com.example.marketapi.domain.user.repository.UserAccountRepository;
+import com.example.marketapi.global.exception.model.ResultCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +28,8 @@ class UserServiceTest {
     private UserAccountRepository userAccountRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private CartService cartService;
     @InjectMocks
     private UserAccountService userAccountService;
 
@@ -68,11 +72,11 @@ class UserServiceTest {
         given(userAccountRepository.findUserAccountByEmail(anyString()))
                 .willReturn(Optional.of(user));
         // When
-        UserAccountException userAccountException = assertThrows(UserAccountException.class, () -> userAccountService.createUserAccount(email, password));
+        GlobalException userAccountException = assertThrows(GlobalException.class, () -> userAccountService.createUserAccount(email, password));
 
         // Then
-        assertEquals(UserAccountException.ErrorCode.USER_ALREADY_EXISTS, userAccountException.getErrorCode());
-        assertEquals(UserAccountException.ErrorCode.USER_ALREADY_EXISTS.getDescription(), userAccountException.getErrorMessage());
+        assertEquals(ResultCode.USER_ALREADY_EXISTS, userAccountException.getResultCode());
+        assertEquals(ResultCode.USER_ALREADY_EXISTS.getDescription(), userAccountException.getResultCode().getDescription());
     }
 
     @DisplayName("올바르지 않은 이메일 형식 - 실패")
@@ -81,11 +85,11 @@ class UserServiceTest {
         // Given
         String invalidEmail = "jack";
         // When
-        UserAccountException userAccountException = assertThrows(UserAccountException.class, () -> userAccountService.createUserAccount(invalidEmail, "1234"));
+        GlobalException userAccountException = assertThrows(GlobalException.class, () -> userAccountService.createUserAccount(invalidEmail, "1234"));
 
         // Then
-        assertEquals(UserAccountException.ErrorCode.EMAIL_NOT_VALID, userAccountException.getErrorCode());
-        assertEquals(UserAccountException.ErrorCode.EMAIL_NOT_VALID.getDescription(), userAccountException.getErrorMessage());
+        assertEquals(ResultCode.EMAIL_NOT_VALID, userAccountException.getResultCode());
+        assertEquals(ResultCode.EMAIL_NOT_VALID.getDescription(), userAccountException.getResultCode().getDescription());
     }
 
     @DisplayName("올바르지 않은 비밀번호 형식 - 실패")
@@ -94,9 +98,9 @@ class UserServiceTest {
         // Given
         String invalidPassword = "1234";
         // When
-        UserAccountException userAccountException = assertThrows(UserAccountException.class, () -> userAccountService.createUserAccount("jack@jack.com", invalidPassword));
+        GlobalException userAccountException = assertThrows(GlobalException.class, () -> userAccountService.createUserAccount("jack@jack.com", invalidPassword));
         // Then
-        assertEquals(UserAccountException.ErrorCode.PASSWORD_NOT_VALID, userAccountException.getErrorCode());
-        assertEquals(UserAccountException.ErrorCode.PASSWORD_NOT_VALID.getDescription(), userAccountException.getErrorMessage());
+        assertEquals(ResultCode.PASSWORD_NOT_VALID, userAccountException.getResultCode());
+        assertEquals(ResultCode.PASSWORD_NOT_VALID.getDescription(), userAccountException.getResultCode().getDescription());
     }
 }

@@ -2,9 +2,10 @@ package com.example.marketapi.domain.user.api;
 
 import com.example.marketapi.domain.user.api.model.UserJoin;
 import com.example.marketapi.domain.user.dto.UserAccountDto;
-import com.example.marketapi.domain.user.exception.UserAccountException;
 import com.example.marketapi.domain.user.service.UserAccountService;
 import com.example.marketapi.global.config.*;
+import com.example.marketapi.global.exception.GlobalException;
+import com.example.marketapi.global.exception.model.ResultCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         })
 })
 @Import(SecurityConfig.class)
+@DisplayName("/user api controller 테스트")
 class UserAccountControllerTest {
     @MockBean
     private UserAccountService userAccountService;
@@ -39,7 +41,7 @@ class UserAccountControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
-    @DisplayName("회원가입 성공")
+    @DisplayName("/join - 회원가입 성공")
     void joinSuccess() throws Exception {
         // Given
         String email = "jack@jack.com";
@@ -63,11 +65,11 @@ class UserAccountControllerTest {
     }
 
     @Test
-    @DisplayName("회원가입 실패 - 유효한 이메일 형식 아님")
+    @DisplayName("/join - 회원가입 실패 - 유효한 이메일 형식 아님")
     void joinFailed_EmailNotValid() throws Exception {
         // Given
         given(userAccountService.createUserAccount(anyString(), anyString()))
-                .willThrow(new UserAccountException(UserAccountException.ErrorCode.EMAIL_NOT_VALID));
+                .willThrow(new GlobalException(ResultCode.EMAIL_NOT_VALID));
         // When
         // Then
         mockMvc.perform(post("/user/join")
@@ -78,17 +80,17 @@ class UserAccountControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$.errorCode").value("EMAIL_NOT_VALID"))
-                .andExpect(jsonPath("$.errorMessage").value("올바른 이메일 형식이 아닙니다."));
+                .andExpect(jsonPath("$.errorCode").value("ERR-4000"))
+                .andExpect(jsonPath("$.errorMessage").value("올바른 이메일 형식이 아닙니다"));
 
     }
 
     @Test
-    @DisplayName("회원가입 실패 - 유효한 비밀번호 형식 아님")
+    @DisplayName("/join - 회원가입 실패 - 유효한 비밀번호 형식 아님")
     void joinFailed_PasswordNotValid() throws Exception {
         // Given
         given(userAccountService.createUserAccount(anyString(), anyString()))
-                .willThrow(new UserAccountException(UserAccountException.ErrorCode.PASSWORD_NOT_VALID));
+                .willThrow(new GlobalException(ResultCode.PASSWORD_NOT_VALID));
         // When
         // Then
         mockMvc.perform(post("/user/join")
@@ -99,16 +101,16 @@ class UserAccountControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$.errorCode").value("PASSWORD_NOT_VALID"))
-                .andExpect(jsonPath("$.errorMessage").value("비밀번호의 형식이 올바르지 않습니다."));
+                .andExpect(jsonPath("$.errorCode").value("ERR-4000"))
+                .andExpect(jsonPath("$.errorMessage").value("비밀번호의 형식이 올바르지 않습니다"));
     }
 
     @Test
-    @DisplayName("회원가입 실패 - 회원 이미 존재")
+    @DisplayName("/join - 회원가입 실패 - 회원 이미 존재")
     void joinFailed_UserAlreadyExists() throws Exception {
         // Given
         given(userAccountService.createUserAccount(anyString(), anyString()))
-                .willThrow(new UserAccountException(UserAccountException.ErrorCode.USER_ALREADY_EXISTS));
+                .willThrow(new GlobalException(ResultCode.USER_ALREADY_EXISTS));
         // When
         // Then
         mockMvc.perform(post("/user/join")
@@ -119,13 +121,13 @@ class UserAccountControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$.errorCode").value("USER_ALREADY_EXISTS"))
-                .andExpect(jsonPath("$.errorMessage").value("이미 사용자가 존재합니다."));
+                .andExpect(jsonPath("$.errorCode").value("ERR-4000"))
+                .andExpect(jsonPath("$.errorMessage").value("이미 사용자가 존재합니다"));
 
     }
 
     @Test
-    @DisplayName("회원가입 실패 - 올바른 요청이 아닐 때")
+    @DisplayName("/join - 회원가입 실패 - 올바른 요청이 아닐 때")
     void joinFailed_InvalidBodyParameters() throws Exception {
         // When
         // Then
@@ -135,7 +137,7 @@ class UserAccountControllerTest {
                 )
                 .andDo(print())
                 .andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$.errorCode").value("BAD_REQUEST"))
-                .andExpect(jsonPath("$.errorMessage").value("올바른 요청이 아닙니다."));
+                .andExpect(jsonPath("$.errorCode").value("ERR-4000"))
+                .andExpect(jsonPath("$.errorMessage").value("올바른 요청이 아닙니다"));
     }
 }

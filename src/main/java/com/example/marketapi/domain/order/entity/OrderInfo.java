@@ -1,4 +1,4 @@
-package com.example.marketapi.domain.cart.entity;
+package com.example.marketapi.domain.order.entity;
 
 import com.example.marketapi.domain.user.entity.UserAccount;
 import lombok.AllArgsConstructor;
@@ -15,18 +15,18 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class CartInfo {
+public class OrderInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
-    private Long cartId;
-    private Long itemCount;
+    private Long orderId;
 
-    @OneToOne
-    @JoinColumn(name="user_id")
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     private UserAccount userAccount;
 
-    @OneToMany(mappedBy = "cartInfo")
+    @OneToMany(mappedBy = "orderInfo")
     @Builder.Default
-    private List<CartItem> cartItemList = new ArrayList<>();
+    private List<OrderItem> orderItemList = new ArrayList<>();
+
 }
