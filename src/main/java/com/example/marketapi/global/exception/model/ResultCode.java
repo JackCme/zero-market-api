@@ -22,8 +22,8 @@ public enum ResultCode {
     , PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND,4040, "상품이 존재하지 않습니다")
     , INSUFFICIENT_STOCK_EXCEPTION(HttpStatus.BAD_REQUEST,4000, "상품의 재고가 부족합니다")
     , ORDER_INFO_NOT_EXISTS(HttpStatus.NOT_FOUND,4040, "존재하지 않는 주문입니다")
-    , ORDER_ITEM_ALREADY_CANCELED(HttpStatus.BAD_REQUEST,4000, "이미 취소된 주문상품 입니다")
-    , ORDER_ITEM_NOT_EXISTS(HttpStatus.NOT_FOUND,4040, "취소할 상품이 주문정보에 존재하지 않습니다")
+    , CANCEL_ORDER_ITEM_ALREADY_CANCELED(HttpStatus.BAD_REQUEST,4000, "이미 취소된 주문상품 입니다")
+    , CANCEL_ORDER_ITEM_NOT_EXISTS(HttpStatus.NOT_FOUND,4040, "취소할 상품이 주문정보에 존재하지 않습니다")
     , CANCEL_COUNT_EXCEED_ORDER_COUNT(HttpStatus.BAD_REQUEST,4000, "주문한 상품보다 많이 취소할 수 없습니다")
     ;
     private final HttpStatus httpStatus;

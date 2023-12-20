@@ -25,7 +25,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -71,12 +73,20 @@ class OrderServiceTest {
         CartInfo cartInfo = CartInfo.builder()
                 .cartId(cartId)
                 .cartItemList(cartItems)
+                .userAccount(UserAccount.builder()
+                        .userId(userId)
+                        .build())
                 .build();
-        given(cartInfoRepository.findCartInfoByUserAccountUserId(anyLong())).willReturn(Optional.of(cartInfo));
+        given(cartInfoRepository.findById(anyLong())).willReturn(Optional.of(cartInfo));
+        given(orderInfoRepository.save(any())).willReturn(OrderInfo.builder()
+                .orderId(1L)
+                .build());
         // When
         OrderInfoDto orderInfoDto = orderService.checkoutOrderFromCart(cartId, userId);
         // Then
         verify(productService, times(cartItems.size())).decreaseProductStock(anyLong(), anyLong());
+        verify(orderInfoRepository, times(1)).save(any());
+        verify(orderItemRepository, times(1)).saveAll(any());
         assertEquals(orderInfoDto.getOrderItems().size(), cartItems.size());
         assertEquals(OrderItemStatus.ORDERED, orderInfoDto.getOrderItems().get(0).getOrderItemStatus());
         assertEquals(OrderItemStatus.ORDERED, orderInfoDto.getOrderItems().get(1).getOrderItemStatus());
@@ -106,8 +116,11 @@ class OrderServiceTest {
         CartInfo cartInfo = CartInfo.builder()
                 .cartId(cartId)
                 .cartItemList(cartItems)
+                .userAccount(UserAccount.builder()
+                        .userId(userId)
+                        .build())
                 .build();
-        given(cartInfoRepository.findCartInfoByUserAccountUserId(anyLong())).willReturn(Optional.of(cartInfo));
+        given(cartInfoRepository.findById(anyLong())).willReturn(Optional.of(cartInfo));
         // When
         GlobalException globalException = assertThrows(GlobalException.class, () -> orderService.checkoutOrderFromCart(cartId, userId));
         // Then
@@ -128,7 +141,7 @@ class OrderServiceTest {
                         .userId(2L)
                         .build())
                 .build();
-        given(cartInfoRepository.findCartInfoByUserAccountUserId(anyLong())).willReturn(Optional.of(cartInfo));
+        given(cartInfoRepository.findById(anyLong())).willReturn(Optional.of(cartInfo));
         // When
         GlobalException globalException = assertThrows(GlobalException.class, () -> orderService.checkoutOrderFromCart(cartId, userId));
         // Then
@@ -143,8 +156,11 @@ class OrderServiceTest {
         Long cartId = 1L;
         Long userId = 1L;
         CartInfo cartInfo = CartInfo.builder()
+                .userAccount(UserAccount.builder()
+                        .userId(userId)
+                        .build())
                 .build();
-        given(cartInfoRepository.findCartInfoByUserAccountUserId(anyLong())).willReturn(Optional.of(cartInfo));
+        given(cartInfoRepository.findById(anyLong())).willReturn(Optional.of(cartInfo));
         // When
         GlobalException globalException = assertThrows(GlobalException.class, () -> orderService.checkoutOrderFromCart(cartId, userId));
         // Then
@@ -178,6 +194,7 @@ class OrderServiceTest {
         OrderInfoDto orderInfoDto = orderService.cancelOrderProduct(orderId, productId, userId);
         // Then
         verify(productService, times(1)).increaseProductStock(productId, orderItem.getCount());
+        verify(orderItemRepository, times(1)).save(any());
         assertEquals(OrderItemStatus.CANCELED, orderInfoDto.getOrderItems().get(0).getOrderItemStatus());
     }
 
@@ -205,7 +222,7 @@ class OrderServiceTest {
                 .build();
         given(orderInfoRepository.findById(anyLong())).willReturn(Optional.of(orderInfo));
         // When
-        GlobalException globalException = assertThrows(GlobalException.class, () -> orderService.cancelOrderProduct(anyLong(), anyLong(), 1L));
+        GlobalException globalException = assertThrows(GlobalException.class, () -> orderService.cancelOrderProduct(orderId, productId, 1L));
         // Then
         assertEquals(ResultCode.ACCESS_DENIED, globalException.getResultCode());
         assertEquals(ResultCode.ACCESS_DENIED.getDescription(), globalException.getResultCode().getDescription());
@@ -217,7 +234,7 @@ class OrderServiceTest {
         // Given
         given(orderInfoRepository.findById(anyLong())).willReturn(Optional.empty());
         // When
-        GlobalException globalException = assertThrows(GlobalException.class, () -> orderService.cancelOrderProduct(anyLong(), anyLong(), anyLong()));
+        GlobalException globalException = assertThrows(GlobalException.class, () -> orderService.cancelOrderProduct(1L, 1L, 1L));
         // Then
         assertEquals(ResultCode.ORDER_INFO_NOT_EXISTS, globalException.getResultCode());
         assertEquals(ResultCode.ORDER_INFO_NOT_EXISTS.getDescription(), globalException.getResultCode().getDescription());
@@ -227,20 +244,24 @@ class OrderServiceTest {
     @DisplayName("주문 취소 실패 - 이미 취소된 주문")
     void orderCancelFailed_OrderAlreadyCanceled() {
         // Given
+        Long productId = 1L;
+        Long userId = 1L;
         ArrayList<OrderItem> orderItems = new ArrayList<>();
         OrderItem orderItem = OrderItem.builder()
+                .product(Product.builder().productId(productId).build())
                 .status(OrderItemStatus.CANCELED)
                 .build();
         orderItems.add(orderItem);
         OrderInfo orderInfo = OrderInfo.builder()
+                .userAccount(UserAccount.builder().userId(userId).build())
                 .orderItemList(orderItems)
                 .build();
         given(orderInfoRepository.findById(anyLong())).willReturn(Optional.of(orderInfo));
         // When
-        GlobalException globalException = assertThrows(GlobalException.class, () -> orderService.cancelOrderProduct(anyLong(), anyLong(), anyLong()));
+        GlobalException globalException = assertThrows(GlobalException.class, () -> orderService.cancelOrderProduct(1L, productId, userId));
         // Then
-        assertEquals(ResultCode.ORDER_ITEM_ALREADY_CANCELED, globalException.getResultCode());
-        assertEquals(ResultCode.ORDER_ITEM_ALREADY_CANCELED.getDescription(), globalException.getResultCode().getDescription());
+        assertEquals(ResultCode.CANCEL_ORDER_ITEM_ALREADY_CANCELED, globalException.getResultCode());
+        assertEquals(ResultCode.CANCEL_ORDER_ITEM_ALREADY_CANCELED.getDescription(), globalException.getResultCode().getDescription());
     }
 
     @Test
@@ -261,10 +282,10 @@ class OrderServiceTest {
                 .build();
         given(orderInfoRepository.findById(anyLong())).willReturn(Optional.of(orderInfo));
         // When
-        GlobalException globalException = assertThrows(GlobalException.class, () -> orderService.cancelOrderProduct(anyLong(), 2L, anyLong()));
+        GlobalException globalException = assertThrows(GlobalException.class, () -> orderService.cancelOrderProduct(1L, 2L, 1L));
         // Then
-        assertEquals(ResultCode.ORDER_ITEM_ALREADY_CANCELED, globalException.getResultCode());
-        assertEquals(ResultCode.ORDER_ITEM_ALREADY_CANCELED.getDescription(), globalException.getResultCode().getDescription());
+        assertEquals(ResultCode.CANCEL_ORDER_ITEM_NOT_EXISTS, globalException.getResultCode());
+        assertEquals(ResultCode.CANCEL_ORDER_ITEM_NOT_EXISTS.getDescription(), globalException.getResultCode().getDescription());
     }
 
     // TODO: 부분취소 구현 했을 때 테스트 추가할 것
