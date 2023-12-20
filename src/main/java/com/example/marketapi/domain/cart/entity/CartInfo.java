@@ -1,10 +1,7 @@
 package com.example.marketapi.domain.cart.entity;
 
 import com.example.marketapi.domain.user.entity.UserAccount;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -21,6 +18,7 @@ public class CartInfo {
     @Column(nullable = false)
     private Long cartId;
     @Builder.Default
+    @Setter
     private Long itemCount = 0L;
 
     @OneToOne
