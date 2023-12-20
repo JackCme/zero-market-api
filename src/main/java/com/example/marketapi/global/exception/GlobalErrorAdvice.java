@@ -16,8 +16,8 @@ public class GlobalErrorAdvice {
     public ResponseEntity<ErrorResponse> handleException(Exception e) {
         // early return
         if (e instanceof GlobalException) {
-            log.error("API Exception has occurred.", e);
             ResultCode resultCode = ((GlobalException) e).getResultCode();
+            log.error("API Exception has occurred. {}", resultCode);
             return new ResponseEntity<>(
                     new ErrorResponse(resultCode),
                     resultCode.getHttpStatus()

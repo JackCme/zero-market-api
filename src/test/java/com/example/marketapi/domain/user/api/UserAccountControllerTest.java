@@ -81,7 +81,7 @@ class UserAccountControllerTest {
                 .andDo(print())
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.errorCode").value("ERR-4000"))
-                .andExpect(jsonPath("$.errorMessage").value("올바른 이메일 형식이 아닙니다."));
+                .andExpect(jsonPath("$.errorMessage").value("올바른 이메일 형식이 아닙니다"));
 
     }
 
@@ -102,7 +102,7 @@ class UserAccountControllerTest {
                 .andDo(print())
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.errorCode").value("ERR-4000"))
-                .andExpect(jsonPath("$.errorMessage").value("비밀번호의 형식이 올바르지 않습니다."));
+                .andExpect(jsonPath("$.errorMessage").value("비밀번호의 형식이 올바르지 않습니다"));
     }
 
     @Test
@@ -122,7 +122,7 @@ class UserAccountControllerTest {
                 .andDo(print())
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.errorCode").value("ERR-4000"))
-                .andExpect(jsonPath("$.errorMessage").value("이미 사용자가 존재합니다."));
+                .andExpect(jsonPath("$.errorMessage").value("이미 사용자가 존재합니다"));
 
     }
 
